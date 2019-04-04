@@ -9,12 +9,16 @@ var app = (function () {
     
     var stompClient = null;
 
-    var addPointToCanvas = function (point) {        
+    var addPointToCanvas = function (point) {       
+        
+        console.log(point+"ddddddddddddddddd")
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
         ctx.stroke();
+      
+
     };
     
     
@@ -36,7 +40,10 @@ var app = (function () {
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/TOPICXX', function (eventbody) {
+            stompClient.subscribe('/topic/newpoint', function (eventbody) {
+                var p=JSON.parse(eventbody.body);
+                addPointToCanvas(p)
+               
                 
                 
             });
@@ -61,6 +68,8 @@ var app = (function () {
             addPointToCanvas(pt);
 
             //publicar el evento
+         
+            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt)); 
         },
 
         disconnect: function () {
