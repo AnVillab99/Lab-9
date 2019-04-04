@@ -11,7 +11,7 @@ var app = (function () {
 
     var addPointToCanvas = function (point) {       
         
-        console.log(point+"ddddddddddddddddd")
+        console.log(point);
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
         ctx.beginPath();
@@ -57,6 +57,13 @@ var app = (function () {
 
         init: function () {
             var can = document.getElementById("canvas");
+            can.addEventListener("click", function(evt){
+
+                var pt=getMousePosition(evt);
+                addPointToCanvas(pt)
+                stompClient.send("/topic/newpoint", {}, JSON.stringify(pt)); 
+                
+            });
             
             //websocket connection
             connectAndSubscribe();
