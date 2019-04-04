@@ -6,6 +6,7 @@ var app = (function () {
             this.y=y;
         }        
     }
+    var connection ='/topic/newpoint'
     
     var stompClient = null;
 
@@ -40,7 +41,8 @@ var app = (function () {
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/newpoint', function (eventbody) {
+            stompClient.subscribe(connection, function (eventbody) {
+                console.log("al recibir"+connection)
                 var p=JSON.parse(eventbody.body);
                 addPointToCanvas(p)
                
@@ -61,12 +63,12 @@ var app = (function () {
 
                 var pt=getMousePosition(evt);
                 addPointToCanvas(pt)
-                stompClient.send("/topic/newpoint", {}, JSON.stringify(pt)); 
+                stompClient.send(connection, {}, JSON.stringify(pt)); 
+                console.log("al enviar"+connection)
                 
             });
             
-            //websocket connection
-            connectAndSubscribe();
+            
         },
 
         publishPoint: function(px,py){
@@ -76,14 +78,30 @@ var app = (function () {
 
             //publicar el evento
          
-            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt)); 
+            stompClient.send(connection, {}, JSON.stringify(pt)); 
+        },
+
+        connect: function(con){
+            var can = document.getElementById("canvas");
+            const cant = can.getContext('2d');
+            cant.clearRect(0, 0, canvas.width, canvas.height);
+
+             
+            connection="/topic/newpointconcat."+con;
+
+
+            //websocket connection
+            app.disconnect(),
+            connectAndSubscribe();
+
         },
 
         disconnect: function () {
             if (stompClient !== null) {
                 stompClient.disconnect();
+                stompClient=null;
             }
-            setConnected(false);
+            //setConnected(false);
             console.log("Disconnected");
         }
     };
