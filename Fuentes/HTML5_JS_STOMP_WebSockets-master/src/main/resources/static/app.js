@@ -87,7 +87,7 @@ var app = (function () {
             cant.clearRect(0, 0, canvas.width, canvas.height);
 
              
-            connection="/topic/newpointconcat."+con;
+            connection="/topic/newpoint."+con;
 
 
             //websocket connection
