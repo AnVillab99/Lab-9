@@ -19,12 +19,41 @@ public class interceptor {
     @Autowired
     SimpMessagingTemplate msg;
 
-    @MessageMapping("/newpoint.{sala}")
-    public void handlePointEvent(Point pt, @DestinationVariable String sala) throws Exception {
-        System.out.println(sala);
-        System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
-        // no se porque no lo intercepta
-        msg.convertAndSend("/topic/newpoint."+sala,pt);
+    @MessageMapping("/newpoint.{room}")
+    public void handlePointEvent(Point pt, @DestinationVariable String room) throws Exception {
+        System.out.println(room);
+        int sala = Integer.parseInt(room);
+        try{
+        if(polygons.get(sala).equals(null)){
+            polygons.lazySet(sala, new polygon());
+            polygons.get(sala).addPoint(pt);
+            msg.convertAndSend("/topic/newpoint."+room,pt);
+
+        }
+        else{
+            polygon pol = polygons.get(sala);
+            if(pol.getNumberOfPoints()==3){
+                msg.convertAndSend("/topic/newpolygon."+room,pol.getPoints());
+                polygons.set(sala, new polygon());
+                
+
+            }
+            else{
+                pol.addPoint(pt);
+                msg.convertAndSend("/topic/newpoint."+room,pt);
+                
+            }
+        }
+    }
+
+        catch(Exception e){
+            polygons.lazySet(sala, new polygon());
+            polygons.get(sala).addPoint(pt);
+            msg.convertAndSend("/topic/newpoint."+room,pt);
+
+        }
+        
+     
 
     }
 }
